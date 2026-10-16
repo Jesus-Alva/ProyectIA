@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f4f5f8">
+    <title>Chat con Foundry</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <main class="chat-shell">
+      <header class="chat-header">
+        <div class="brand-mark" aria-hidden="true">F</div>
+        <div>
+          <p class="eyebrow">MICROSOFT FOUNDRY</p>
+          <h1>Asistente</h1>
+        </div>
+        <span class="connection-status"><span aria-hidden="true"></span> En línea</span>
+      </header>
+
+      <section class="chat-content" aria-label="Conversación">
+        <div class="welcome">
+          <p class="welcome-icon" aria-hidden="true">✦</p>
+          <h2>¿En qué puedo ayudarte?</h2>
+          <p>Escribe tu pregunta para iniciar una conversación.</p>
+        </div>
+        <div id="messages" class="messages" aria-live="polite" aria-relevant="additions"></div>
+        <p id="status" class="status" role="status"></p>
+      </section>
+
+      <form id="chat-form" class="composer">
+        <label class="visually-hidden" for="message-input">Tu mensaje</label>
+        <textarea
+          id="message-input"
+          name="message"
+          rows="1"
+          maxlength="2000"
+          placeholder="Escribe un mensaje..."
+          required
+        ></textarea>
+        <button id="send-button" type="submit" aria-label="Enviar mensaje">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4.5 19.5 21 12 4.5 4.5 4 10l11 2-11 2 .5 5.5Z"></path>
+          </svg>
+        </button>
+      </form>
+      <p class="disclaimer">Las respuestas pueden contener errores. Verifica la información importante.</p>
+    </main>
+  </body>
+</html>
