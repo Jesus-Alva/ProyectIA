@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { once } from "node:events";
 import test from "node:test";
-import { createApp } from "../server.js";
+import { createApp, normalizeProjectEndpoint } from "../server.js";
 
 async function startServer(t, openai) {
-  const server = createApp(openai, "test-agent").listen(0);
+  const server = createApp(openai).listen(0);
   await once(server, "listening");
   t.after(() => new Promise((resolve, reject) => {
     server.close((error) => (error ? reject(error) : resolve()));
@@ -12,6 +12,21 @@ async function startServer(t, openai) {
 
   return `http://127.0.0.1:${server.address().port}`;
 }
+
+test("removes a dedicated agent route from the project endpoint", () => {
+  assert.equal(
+    normalizeProjectEndpoint(
+      "https://example.test/api/projects/demo/agents/test-agent/endpoint/protocols/openai/responses",
+    ),
+    "https://example.test/api/projects/demo",
+  );
+});
+
+test("keeps a project root endpoint unchanged", () => {
+  const endpoint = "https://example.test/api/projects/demo";
+
+  assert.equal(normalizeProjectEndpoint(endpoint), endpoint);
+});
 
 test("reuses a conversation id for follow-up messages", async (t) => {
   const calls = [];
@@ -24,8 +39,8 @@ test("reuses a conversation id for follow-up messages", async (t) => {
       },
     },
     responses: {
-      create: async (request, agentReference) => {
-        calls.push({ request, agentReference });
+      create: async (request) => {
+        calls.push(request);
         return { output_text: "Respuesta de prueba." };
       },
     },
@@ -54,21 +69,10 @@ test("reuses a conversation id for follow-up messages", async (t) => {
   assert.equal(firstResult.conversation_id, "conversation-123");
   assert.equal(followUpResult.conversation_id, "conversation-123");
   assert.equal(conversationCreations, 1);
-  assert.deepEqual(
-    calls.map(({ request }) => request),
-    [
-      { conversation: "conversation-123", input: "Recuerda esta palabra: jacaranda." },
-      { conversation: "conversation-123", input: "¿Qué palabra te pedí recordar?" },
-    ],
-  );
-  assert.deepEqual(calls[0].agentReference, {
-    body: {
-      agent: {
-        name: "test-agent",
-        type: "agent_reference",
-      },
-    },
-  });
+  assert.deepEqual(calls, [
+    { conversation: "conversation-123", input: "Recuerda esta palabra: jacaranda." },
+    { conversation: "conversation-123", input: "¿Qué palabra te pedí recordar?" },
+  ]);
 });
 
 test("rejects an empty message with status 422", async (t) => {

@@ -18,9 +18,12 @@ EL frontend (HTML, CSS y JS sin frameworks) llama a un backend Node.js con Expre
 ## Arquitectura (no la cambies sin preguntar)
 - `server.js`: sirve `public/` en `/`, expone `POST /api/chat` y `GET /health`.
 - El navegador NUNCA habla directo con Foundry. Solo el backend.
+- `FOUNDRY_PROJECT_ENDPOINT` apunta a la raíz del proyecto
+ (`.../api/projects/<project>`), no a una ruta del agente.
+- El cliente OpenAI se vincula al endpoint dedicado del agente con
+ `getOpenAIClient({ azureConfig: { allowPreview: true, agentName } })`.
 - Conversación multi-turno: `openai.conversations.create()` y
- `openai.responses.create({ conversation, input }, agentRef)`, donde
- `agentRef = { body: { agent: { name, type: "agent_reference" } } }`.
+ `openai.responses.create({ conversation, input })`.
  El `conversation_id` viaja entre frontend y backend en el JSON.
 - El servidor escucha en `process.env.PORT` (App Service lo define).
 
